@@ -1,0 +1,22 @@
+name: Build iOS App
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build iOS IPA
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Build App for Generic iOS Device
+        run: |
+          # Nhảy vào đúng thư mục chứa project
+          cd "demo src patch muy"
+
+          echo "ThNhìn vào đoạn cấu trúc đường dẫn hệ thống mà bạn vừa gửi, nguyên nhân gây ra lỗi `ThreeOneOSFive.xcodeproj does not exist
