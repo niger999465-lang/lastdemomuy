@@ -14,16 +14,55 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Create Missing Localization Files
+      - name: Create Missing Project Files & Assets
         run: |
-          # Tự động tạo đầy đủ các thư mục và tệp Localizable.strings còn thiếu
+          # 1. Tạo các tệp ngôn ngữ Localizable.strings còn thiếu
           mkdir -p ThreeOneOSFive/en.lproj
           mkdir -p ThreeOneOSFive/zh-Hans.lproj
           mkdir -p ThreeOneOSFive/vi.lproj
-          
           touch ThreeOneOSFive/en.lproj/Localizable.strings
           touch ThreeOneOSFive/zh-Hans.lproj/Localizable.strings
           touch ThreeOneOSFive/vi.lproj/Localizable.strings
+
+          # 2. Tạo thư mục Assets.xcassets và AppIcon trống để tránh lỗi actool
+          mkdir -p ThreeOneOSFive/Assets.xcassets/AppIcon.appiconset
+          cat << 'EOF' > ThreeOneOSFive/Assets.xcassets/Contents.json
+          {
+            "info" : {
+              "author" : "xcode",
+              "version" : 1
+            }
+          }
+          EOF
+          cat << 'EOF' > ThreeOneOSFive/Assets.xcassets/AppIcon.appiconset/Contents.json
+          {
+            "images" : [],
+            "info" : {
+              "author" : "xcode",
+              "version" : 1
+            }
+          }
+          EOF
+
+          # 3. Tạo tệp Info.plist cơ bản nếu chưa có
+          if [ ! -f "ThreeOneOSFive/Info.plist" ]; then
+            cat << 'EOF' > ThreeOneOSFive/Info.plist
+            <?xml version="1.0" encoding="UTF-8"?>
+            <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+            <plist version="1.0">
+            <dict>
+                <key>CFBundleIdentifier</key>
+                <string>com.mobile.ThreeOneOSFive</string>
+                <key>CFBundleShortVersionString</key>
+                <string>1.0</string>
+                <key>CFBundleVersion</key>
+                <string>1</string>
+                <key>UILaunchScreen</key>
+                <dict/>
+            </dict>
+            </plist>
+            EOF
+          fi
 
       - name: Build App for Generic iOS Device
         run: |
