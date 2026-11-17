@@ -17,51 +17,17 @@ jobs:
       - name: Create Missing Project Files & Assets
         run: |
           # 1. Tạo các tệp ngôn ngữ Localizable.strings còn thiếu
-          mkdir -p ThreeOneOSFive/en.lproj
-          mkdir -p ThreeOneOSFive/zh-Hans.lproj
-          mkdir -p ThreeOneOSFive/vi.lproj
-          touch ThreeOneOSFive/en.lproj/Localizable.strings
-          touch ThreeOneOSFive/zh-Hans.lproj/Localizable.strings
-          touch ThreeOneOSFive/vi.lproj/Localizable.strings
+          mkdir -p ThreeOneOSFive/en.lproj ThreeOneOSFive/zh-Hans.lproj ThreeOneOSFive/vi.lproj
+          touch ThreeOneOSFive/en.lproj/Localizable.strings ThreeOneOSFive/zh-Hans.lproj/Localizable.strings ThreeOneOSFive/vi.lproj/Localizable.strings
 
-          # 2. Tạo thư mục Assets.xcassets và AppIcon trống để tránh lỗi actool
+          # 2. Tạo thư mục Assets.xcassets và AppIcon trống bằng lệnh echo
           mkdir -p ThreeOneOSFive/Assets.xcassets/AppIcon.appiconset
-          cat << 'EOF' > ThreeOneOSFive/Assets.xcassets/Contents.json
-          {
-            "info" : {
-              "author" : "xcode",
-              "version" : 1
-            }
-          }
-          EOF
-          cat << 'EOF' > ThreeOneOSFive/Assets.xcassets/AppIcon.appiconset/Contents.json
-          {
-            "images" : [],
-            "info" : {
-              "author" : "xcode",
-              "version" : 1
-            }
-          }
-          EOF
+          echo '{"info":{"author":"xcode","version":1}}' > ThreeOneOSFive/Assets.xcassets/Contents.json
+          echo '{"images":[],"info":{"author":"xcode","version":1}}' > ThreeOneOSFive/Assets.xcassets/AppIcon.appiconset/Contents.json
 
           # 3. Tạo tệp Info.plist cơ bản nếu chưa có
           if [ ! -f "ThreeOneOSFive/Info.plist" ]; then
-            cat << 'EOF' > ThreeOneOSFive/Info.plist
-            <?xml version="1.0" encoding="UTF-8"?>
-            <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-            <plist version="1.0">
-            <dict>
-                <key>CFBundleIdentifier</key>
-                <string>com.mobile.ThreeOneOSFive</string>
-                <key>CFBundleShortVersionString</key>
-                <string>1.0</string>
-                <key>CFBundleVersion</key>
-                <string>1</string>
-                <key>UILaunchScreen</key>
-                <dict/>
-            </dict>
-            </plist>
-            EOF
+            printf '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n<plist version="1.0">\n<dict>\n\t<key>CFBundleIdentifier</key>\n\t<string>com.mobile.ThreeOneOSFive</string>\n\t<key>CFBundleShortVersionString</key>\n\t<string>1.0</string>\n\t<key>CFBundleVersion</key>\n\t<string>1</string>\n\t<key>UILaunchScreen</key>\n\t<dict/>\n</dict>\n</plist>\n' > ThreeOneOSFive/Info.plist
           fi
 
       - name: Build App for Generic iOS Device
