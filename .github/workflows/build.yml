@@ -14,9 +14,45 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Create Missing Localization Files
+        run: |
+          # Tự động tạo đầy đủ các thư mục và tệp Localizable.strings còn thiếu
+          mkdir -p ThreeOneOSFive/en.lproj
+          mkdir -p ThreeOneOSFive/zh-Hans.lproj
+          mkdir -p ThreeOneOSFive/vi.lproj
+          
+          touch ThreeOneOSFive/en.lproj/Localizable.strings
+          touch ThreeOneOSFive/zh-Hans.lproj/Localizable.strings
+          touch ThreeOneOSFive/vi.lproj/Localizable.strings
+
       - name: Build App for Generic iOS Device
         run: |
-          # Nhảy vào đúng thư mục chứa project
-          cd "demo src patch muy"
+          # Tự động lấy tên scheme hiện có trong project
+          SCHEME_NAME=$(xcodebuild -list -json | python3 -c "import sys, json; data = json.load(sys.stdin); print(data['project']['schemes'][0])")
+          echo "=> Đang build với Scheme: $SCHEME_NAME"
 
-          echo "ThNhìn vào đoạn cấu trúc đường dẫn hệ thống mà bạn vừa gửi, nguyên nhân gây ra lỗi `ThreeOneOSFive.xcodeproj does not exist
+          # Thực hiện biên dịch
+          xcodebuild -project ThreeOneOSFive.xcodeproj \
+            -scheme "$SCHEME_NAME" \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+
+          # Đóng gói thành tệp .ipa
+          mkdir -p build/Payload
+          APP_NAME=$(ls build/DerivedData/Build/Products/Release-iphoneos/ | grep "\.app$" | head -n 1)
+          echo "=> Đã tìm thấy App product: $APP_NAME"
+          
+          cp -r build/DerivedData/Build/Products/Release-iphoneos/"$APP_NAME" build/Payload/
+          cd build
+          zip -r ThreeOneOSFive.ipa Payload
+          
+          mkdir -p ../output
+          mv ThreeOneOSFive.ipa ../output/
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ThreeOneOSFive-IPA
+          path: output/ThreeOneOSFive.ipa
